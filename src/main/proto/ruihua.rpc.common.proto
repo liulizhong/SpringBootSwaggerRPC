@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package ruihua.rpc.common;
+
+option java_multiple_files = true;
+option java_package = "ruihua.rpc.common";
+
+
+
+
+enum EnumConstants
+{
+	CONSTANT_PAGE_UNSET		= 0;
+	CONSTANT_PAGE_NO_DEFAULT	= 1;
+
+	CONSTANT_PAGE_SIZE_DEFAULT	= 20;
+	CONSTANT_PAGE_SIZE_MAX		= 100;
+	CONSTANT_PAGE_SIZE_MIN		= 10;
+}
+
+
+enum EnumRpcCode
+{
+	RPC_UNKNOWN				= 0;
+
+	RPC_FAILED				= -1;
+	RPC_EXCEPTIONAL				= -2;
+	RPC_ILLEGAL_PARAMETERS			= -3;
+
+	RPC_SUCCESSFUL				= 200;
+	RPC_CREATED				= 201;
+	RPC_ACCEPTED				= 202;
+	RPC_NON_AUTHORITATIVE_INFORMATION	= 203;
+	RPC_NO_CONTENT				= 204;
+	RPC_RESET_CONTENT			= 205;
+	RPC_PARTIAL_CONTENT			= 206;
+	RPC_MULTI_STATUS			= 207;	//	WebDAV
+	RPC_ALREADY_REPORTED			= 208;	//	WebDAV
+	RPC_IM_USED				= 226;	//	HTTP Delta encoding
+
+	RPC_BAD_REQUEST				= 400;
+	RPC_UNAUTHORIZED			= 401;
+	RPC_PAYMENT_REQUIRED			= 402;
+	RPC_FORBIDDEN				= 403;
+	RPC_NOT_FOUND				= 404;
+	RPC_METHOD_NOT_ALLOWED			= 405;
+	RPC_NOT_ACCEPTABLE			= 406;
+	RPC_PROXY_AUTHENTICATION_REQUIRED	= 407;
+	RPC_REQUEST_TIMEOUT			= 408;
+	RPC_CONFLICT				= 409;
+	RPC_GONE				= 410;
+	RPC_LENGTH_REQUIRED			= 411;
+	RPC_PRECONDITION_FAILED			= 412;
+	RPC_REQUEST_ENTITY_TOO_LARGE		= 413;
+	RPC_REQUEST_URI_TOO_LONG		= 414;
+	RPC_UNSUPPORTED_MEDIA_TYPE		= 415;
+	RPC_REQUESTED_RANGE_NOT_SATISFIABLE	= 416;
+	RPC_EXPECTATION_FAILED			= 417;
+	RPC_UPGRADE_REQUIRED			= 426;
+	RPC_PRECONDITION_REQUIRED		= 428;
+	RPC_TOO_MANY_REQUESTS			= 429;
+	RPC_REQUEST_HEADER_FIELDS_TOO_LARGE	= 431;
+	RPC_UNAVAILABLE_FOR_LEGAL_REASONS	= 451;
+	RPC_CLIENT_CLOSED_REQUEST		= 499;	//	(NGINX)
+
+	RPC_INTERNAL_SERVER_ERROR		= 500;
+	RPC_NOT_IMPLEMENTED			= 501;
+	RPC_BAD_GATEWAY				= 502;
+	RPC_SERVICE_UNAVAILABLE			= 503;
+	RPC_GATEWAY_TIMEOUT			= 504;
+	RPC_SERVICE_VERSION_NOT_SUPPORTED	= 505;
+	RPC_VARIANT_ALSO_NEGOTIATES 		= 506;	//	(RFC 2295)
+	RPC_INSUFFICIENT_STORAGE		= 507;	//	(WebDAV; RFC 4918)
+	RPC_LOOP_DETECTED 			= 508;	//	(WebDAV; RFC 5842)
+	RPC_NOT_EXTENDED			= 510;	//	(RFC 2774)
+	RPC_NETWORK_AUTHENTICATION_REQUIRED	= 511;	//	(RFC 6585)
+}
+
+
+enum EnumCommonStatus
+{
+	COMMON_STATUS_UNSET	= 0;
+	OKAY			= 1;
+	ARCHIVED		= 2;
+	DELETED			= 3;
+}
+
+enum EnumCommonResult
+{
+	COMMON_RESULT_UNSET	= 0;
+	RESULT_SUCCESSFUL	= 1;
+	RESULT_FAILED		= 2;
+	RESULT_ACCEPTED		= 3;
+	RESULT_DENIED		= 4;
+}
+
+enum EnumUserType
+{
+	USER_TYPE_UNSET		= 0;
+}
+
+enum EnumGender
+{
+	GENDER_UNSET		= 0;
+	MALE			= 1;
+	FEMALE			= 2;
+}
+
+enum EnumRegion
+{
+	REGION_UNSET			= 0;
+	REGION_CODE_CN			= 86;	//	CN
+}
+
+
+
+/**
+ *	App Authentication
+ */
+message AppAuthInfo
+{
+	string key	= 1;
+	string secret	= 2;
+}
+
+
+
+message CommonResponse
+{
+	//	service version number
+	string version		=  1;
+
+	//	error code in int32 format
+	EnumRpcCode code	=  2;
+
+	//	error code in string format
+	string	error		=  3;
+
+	//	error message
+	string	message		=  4;
+
+	//	trace id
+	string	trace_id	=  5;
+
+	//	customized data
+	string	data		=  6;
+
+	//	page number
+	uint32 page_no		= 30;
+
+	//	page size
+	uint32 page_size	= 31;
+}

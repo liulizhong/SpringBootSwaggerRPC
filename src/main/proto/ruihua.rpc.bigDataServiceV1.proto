@@ -1,0 +1,247 @@
+syntax = "proto3";
+
+package ruihua.bigDataServiceV1;
+import "ruihua.rpc.common.proto";
+
+option java_multiple_files = true;
+option java_package = "ruihua.rpc.bigDataServiceV1";
+
+
+message DataNameItem
+{
+    //  system name,
+    //  category name,
+    //  equipment name or
+    //  column name of HBase column family, etc.
+    //
+    //  limited to 32 characters
+    string name     = 1;
+
+    //	id
+    int64  id       = 2;
+}
+
+message DataValueItem
+{
+    //  offset
+    int32 queryOffset           = 1;
+
+    //  client name
+    string client               = 10;
+
+    //  datetime submitted by client
+    string clientDatetime       = 20;
+
+    //  datetime the system saved this data
+    //  Usually refers to the time when the data was saved to Kafka
+    string systemDatetime       = 21;
+
+    //
+    //  column values
+    //      column name => string type value
+    //
+    map<string,string> values   = 30;
+}
+
+
+/*
+ *  Query Parameter
+ */
+message QueryParameter
+{
+    //  [optional] system name or idClientItem
+    DataNameItem system             = 10;
+
+    //  [optional] category name or id
+    DataNameItem category           = 11;
+
+    //  [optional] equipment name or id
+    DataNameItem equipment          = 12;
+
+    //  [optional] description (approximate/exact string matching)
+    //  limited to 3 items, each item limited to 32 characters
+    repeated string descriptions    = 20;
+
+    //  [optional] client name array
+    //  limited to 256 items, each item limited to 32 characters
+    repeated string clients         = 30;
+
+    //  [optional] user specified columns of HBase column family
+    //  limited to 64 items, each item limited to 32 characters
+    repeated string columns         = 40;
+
+    //  [optional] limit, default value is 100, max value is 10000
+    int32 limit                     = 50;
+}
+
+/**
+ *  request for getting the latest data
+ */
+message GetLatestDataRequest
+{
+    //  [required]
+    ruihua.rpc.common.AppAuthInfo appAuth   = 1;
+
+    //  [required]
+    repeated QueryParameter parameters      = 10;
+}
+
+
+/**
+ *  request for querying the latest data by group
+ */
+message GetLatestDataByGroupRequest
+{
+    //  [required]
+    ruihua.rpc.common.AppAuthInfo appAuth   = 1;
+
+    //  [required] group
+    DataNameItem group                      = 10;
+}
+
+
+
+/**
+ *  response for getting the latest data
+ */
+message GetLatestDataResponse
+{
+    //  response status
+    ruihua.rpc.common.CommonResponse header	=  1;
+
+    //
+    //  response data value
+    //
+    //      client name => column values
+    //
+    map<string,DataValueItem> dataMap           = 10;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+/**
+ *	request for getting customized data
+ */
+message GetCustomizedDataRequest
+{
+    //  [required]
+    ruihua.rpc.common.AppAuthInfo appAuth   = 1;
+
+    //  [required]
+    repeated QueryParameter parameters      = 10;
+
+    //  [required] start time, for example: 2020-09-21 13:50:33
+    string startTime                        = 50;
+
+    //  [required] end time, for example: 2020-09-21 15:50:33
+    string endTime                          = 51;
+}
+
+
+
+////////////////////////////////////////////////////////////
+//  ...
+////////////////////////////////////////////////////////////
+
+
+
+
+
+/**
+ *  request for writing data
+ */
+message WriteDataRequest
+{
+    //  [required]
+    ruihua.rpc.common.AppAuthInfo appAuth   = 1;
+
+    //  client item
+    DataValueItem clientItem                = 10;
+}
+
+
+/**
+ *  response for writing data
+ */
+message WriteDataResponse
+{
+    //  response status
+    ruihua.rpc.common.CommonResponse header	=  1;
+
+    //
+    //  SHOULD set dataItem.systemDatetime as the time the item was written to Kafka by producer
+    //  SHOULD set dataItem.clientItem.columnValues as null
+    //
+    DataValueItem dataItem                      = 10;
+}
+
+
+////////////////////////////////////////////////////////////
+//  ...
+////////////////////////////////////////////////////////////
+
+
+
+/**
+ *  request for writing data in batches
+ */
+message WriteDataInBatchesRequest
+{
+    //  [required]
+    ruihua.rpc.common.AppAuthInfo appAuth   = 1;
+
+    //  client items
+    repeated DataValueItem dataItems        = 10;
+}
+
+/**
+ *  response for writing data in batches
+ */
+message WriteDataInBatchesResponse
+{
+    //  response status
+    ruihua.rpc.common.CommonResponse header =  1;
+
+    //
+    //  each items:
+    //      SHOULD set dataItem.systemDatetime as the time the item was written to Kafka by producer
+    //      SHOULD set dataItem.values as null
+    //
+    repeated DataValueItem dataItems        = 10;
+}
+
+
+
+
+
+
+
+
+/**
+ *	BigData Services
+ */
+service BigDataServiceV1
+{
+    //  [READ] get latest data
+    rpc getLatestData( GetLatestDataRequest ) returns ( GetLatestDataResponse );
+
+    //  [READ] get latest data by group
+    rpc getLatestDataByGroup( GetLatestDataByGroupRequest ) returns ( GetLatestDataResponse );
+
+    //  [READ] get customized data
+    rpc getCustomizedData ( GetCustomizedDataRequest ) returns ( stream DataValueItem );
+
+
+    //  [WRITE] write data
+    rpc writeData( WriteDataRequest ) returns ( WriteDataResponse );
+
+    //  [WRITE] write data in batches
+    rpc writeDataInBatches( WriteDataInBatchesRequest ) returns ( WriteDataInBatchesResponse );
+}
